@@ -40,7 +40,7 @@ export default function HabitGrid({
       {/* Date Header Row */}
       <div className="flex overflow-hidden">
         {/* Habit Names Column (sticky) */}
-        <div className="w-48 flex-shrink-0 border-r border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900" />
+        <div className="w-48 flex-shrink-0 border-r border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900 sticky left-0 z-10" />
 
         {/* Dates Row */}
         <div className="flex gap-1 overflow-x-auto p-3">

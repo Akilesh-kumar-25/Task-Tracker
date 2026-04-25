@@ -58,7 +58,7 @@ export default function HabitRow({
   return (
     <div className="border-b border-gray-200 dark:border-gray-800">
       {/* Header */}
-      <div className="flex items-center gap-4 border-r border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-900">
+      <div className="flex items-center gap-4 border-r border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-900 sticky left-0 z-10 min-w-[200px]">
         {/* Habit Name & Emoji */}
         <div className="w-32 flex-shrink-0">
           {isEditing ? (
