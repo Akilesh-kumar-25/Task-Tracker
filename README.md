@@ -56,6 +56,3 @@ HabitTracker is a premium, high-performance web application designed to help use
 - **Add Habits**: Click the "+" button in the grid to create new habits with custom emojis.
 - **Track Progress**: Click the circles in the daily grid to mark tasks as complete.
 - **Update Profile**: Click your profile icon in the top right to upload a new picture (< 200KB).
-
----
-*Built with ❤️ by Akilesh Kumar*
