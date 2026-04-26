@@ -132,7 +132,7 @@ export default function MegaDashboard() {
       day: `Day ${day}`,
       completed,
       pending: Math.max(0, habits.length - completed),
-      percentage: habits.length > 0 ? (completed / habits.length) * 100 : 0
+      percentage: habits.length > 0 ? Number(((completed / habits.length) * 100).toFixed(2)) : 0
     };
   }), [days, currentYear, currentMonth, deferredEntries, habits]);
 
@@ -149,7 +149,7 @@ export default function MegaDashboard() {
   const todayStr = formatDate(new Date());
   const todayEntry = entries[todayStr];
   const todayCompleted = habits.filter(h => todayEntry?.completions[h.id]).length;
-  const todayProgress = habits.length > 0 ? (todayCompleted / habits.length) * 100 : 0;
+  const todayProgress = habits.length > 0 ? Number(((todayCompleted / habits.length) * 100).toFixed(2)) : 0;
 
   const topHabits = useMemo(() => {
     return habits
@@ -402,8 +402,6 @@ export default function MegaDashboard() {
             </div>
           </div>
 
-
-
             {/* NEW STANDALONE SECTION: Visual Mastery Map */}
             <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-[32px] md:rounded-[48px] p-6 md:p-10 shadow-2xl border border-white dark:border-slate-700 flex flex-col gap-6 md:gap-8 group">
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
@@ -431,7 +429,7 @@ export default function MegaDashboard() {
                         {i + 1}
                       </div>
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-[#5c544d] text-white text-[8px] md:text-[10px] font-bold rounded-lg opacity-0 group-hover/day:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20 shadow-xl">
-                        Day {i + 1}: {Math.round(data.percentage)}%
+                        Day {i + 1}: {data.percentage.toFixed(2)}%
                       </div>
                     </div>
                   );
@@ -654,7 +652,7 @@ export default function MegaDashboard() {
                            completionDays < 330 ? 330 - completionDays : 0} days
                         </span>.
                       </p>
-                      <div className="h-2 w-full bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-2 w-full bg-gray-100 dark:bg-slate-900 rounded-full overflow-hidden">
                         <div className="h-full bg-[#5c544d] transition-all" style={{ 
                           width: `${completionDays < 10 ? (completionDays/10)*100 : 
                                   completionDays < 25 ? ((completionDays-10)/15)*100 : 

@@ -103,25 +103,32 @@ export default function DashboardCharts({ dailyData, streak, monthPercent, compl
       </div>
 
       {/* 4. LONG TERM TREND - Full width at bottom of charts */}
-      <div className="xl:col-span-12 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-xl border border-gray-100 dark:border-slate-700 h-28 overflow-hidden group/trend">
+      <div className="xl:col-span-12 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-xl border border-gray-100 dark:border-slate-700 h-40 group/trend">
         <div className="flex justify-between items-center mb-1">
           <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-[#8b7f74]">Consistency Trend</h3>
           <span className="text-[9px] font-bold text-[#8b7f74] opacity-0 group-hover/trend:opacity-100 transition-opacity">Dynamic month-over-month view</span>
         </div>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={dailyData}>
-            <defs>
-              <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8b7f74" stopOpacity={0.1} />
-                <stop offset="95%" stopColor="#8b7f74" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis dataKey="day" hide />
-            <YAxis hide domain={[0, 100]} />
-            <Line type="monotone" dataKey="percentage" stroke="#5c544d" strokeWidth={3} dot={false} activeDot={{ r: 4, strokeWidth: 0, fill: '#8b7f74' }} {...chartProps} />
-            <Tooltip contentStyle={{ fontSize: '10px', borderRadius: '12px' }} />
-          </LineChart>
-        </ResponsiveContainer>
+        <div className="overflow-x-auto scrollbar-hide">
+          <div className="min-w-[500px] h-28">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={dailyData}>
+                <defs>
+                  <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8b7f74" stopOpacity={0.1} />
+                    <stop offset="95%" stopColor="#8b7f74" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="day" hide />
+                <YAxis hide domain={[0, 100]} />
+                <Line type="monotone" dataKey="percentage" stroke="#5c544d" strokeWidth={3} dot={false} activeDot={{ r: 4, strokeWidth: 0, fill: '#8b7f74' }} {...chartProps} />
+                <Tooltip 
+                  contentStyle={{ fontSize: '10px', borderRadius: '12px' }} 
+                  formatter={(value: any) => [`${Number(value).toFixed(2)}%`, 'Consistency']}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
     </div>
   );
