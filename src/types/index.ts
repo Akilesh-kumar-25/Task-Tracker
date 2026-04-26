@@ -15,6 +15,9 @@ export interface Habit {
   createdAt: Date;
   archived: boolean;
   position: number;
+  type: 'permanent' | 'temporary';
+  startDate?: string; // YYYY-MM-DD
+  endDate?: string;   // YYYY-MM-DD
 }
 
 export interface HabitEntry {

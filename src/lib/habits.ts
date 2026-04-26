@@ -165,7 +165,7 @@ export async function reorderHabits(
 export async function getTotalCompletionDays(userId: string): Promise<number> {
   const entriesRef = collection(db, 'users', userId, 'entries');
   const snapshot = await getDocs(entriesRef);
-  
+
   let totalDays = 0;
   snapshot.docs.forEach((doc) => {
     const entry = doc.data() as HabitEntry;
@@ -173,6 +173,6 @@ export async function getTotalCompletionDays(userId: string): Promise<number> {
       totalDays++;
     }
   });
-  
+
   return totalDays;
 }

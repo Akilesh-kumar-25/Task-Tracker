@@ -14,17 +14,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { ensureUserExists } from '@/lib/db';
+import { Layout, Shield, Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 // Form validation schema
 const authSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').optional(),
   email: z.string().email('Invalid email address'),
-  password: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number')
-    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
 type AuthFormData = z.infer<typeof authSchema>;
@@ -34,7 +30,6 @@ export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -50,70 +45,72 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Set persistence to Local (remembers forever on this device)
       await setPersistence(auth, browserLocalPersistence);
 
       if (isLogin) {
-        // Handle Login
         await signInWithEmailAndPassword(auth, data.email, data.password);
       } else {
-        // Handle Sign Up
         const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-        
-        // Update profile with name
         if (data.name) {
-          await updateProfile(userCredential.user, {
-            displayName: data.name
-          });
+          await updateProfile(userCredential.user, { displayName: data.name });
+          await ensureUserExists(userCredential.user, data.name);
         }
-
-        // Ensure user exists in Firestore with the manual name
-        await ensureUserExists(userCredential.user, data.name);
       }
-      
       router.push('/');
     } catch (err: any) {
-      setError(err.message || 'Authentication failed');
-      console.error(err);
+      if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        setError('Incorrect password');
+      } else if (err.code === 'auth/user-not-found') {
+        setError('User not found');
+      } else {
+        setError('Authentication failed. Please check your details.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-4">
-      <div className="w-full max-w-md">
-        {/* Card */}
-        <div className="overflow-hidden rounded-3xl bg-white/80 shadow-2xl backdrop-blur-xl dark:bg-slate-900/80 border border-white/20 dark:border-slate-800">
-          <div className="p-8">
-            {/* Header */}
-            <div className="mb-8 text-center">
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-                {isLogin ? 'Welcome Back' : 'Create Account'}
-              </h1>
-              <p className="mt-2 text-slate-500 dark:text-slate-400">
-                {isLogin ? 'Sign in to your account' : 'Join HabitTrack to build better habits'}
-              </p>
-            </div>
+    <div className="flex min-h-screen items-center justify-center bg-[#f0ebe6] p-4 font-sans selection:bg-[#8b7f74] selection:text-white overflow-hidden">
+      {/* Decorative Blobs */}
+      <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#d1c7bc]/30 rounded-full blur-[120px] pointer-events-none animate-pulse" />
+      <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#8b7f74]/20 rounded-full blur-[120px] pointer-events-none animate-pulse" style={{ animationDelay: '2s' }} />
 
-            {/* Auth Toggle */}
-            <div className="mb-8 flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+      <div className="w-full max-w-[440px] relative z-10">
+        {/* Logo/Brand Section */}
+        <div className="mb-10 text-center animate-in fade-in slide-in-from-top-4 duration-700">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#5c544d] rounded-3xl shadow-xl mb-4 transform hover:scale-110 transition-transform cursor-default">
+            <Layout className="text-white w-8 h-8" />
+          </div>
+          <h1 className="text-4xl font-heading italic text-[#5c544d] tracking-tight">
+            Mastery Portal
+          </h1>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#8b7f74] mt-2 opacity-60">
+            Precision Habit Tracking
+          </p>
+        </div>
+
+        {/* Card */}
+        <div className="overflow-hidden rounded-[40px] bg-white/70 shadow-[0_32px_64px_-16px_rgba(92,84,77,0.15)] backdrop-blur-2xl border border-white animate-in fade-in zoom-in-95 duration-1000">
+          <div className="p-10">
+            {/* Auth Toggle (Tabs) */}
+            <div className="mb-10 flex bg-[#e9e4df] p-1.5 rounded-2xl">
               <button
                 onClick={() => setIsLogin(true)}
-                className={`flex-1 rounded-lg py-2 text-sm font-medium transition-all ${
+                className={`flex-1 rounded-xl py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${
                   isLogin 
-                    ? 'bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-white' 
-                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                    ? 'bg-white text-[#5c544d] shadow-md' 
+                    : 'text-[#8b7f74] hover:text-[#5c544d]'
                 }`}
               >
                 Login
               </button>
               <button
                 onClick={() => setIsLogin(false)}
-                className={`flex-1 rounded-lg py-2 text-sm font-medium transition-all ${
+                className={`flex-1 rounded-xl py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${
                   !isLogin 
-                    ? 'bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-white' 
-                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                    ? 'bg-white text-[#5c544d] shadow-md' 
+                    : 'text-[#8b7f74] hover:text-[#5c544d]'
                 }`}
               >
                 Sign Up
@@ -121,74 +118,61 @@ export default function LoginPage() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {!isLogin && (
-                <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                    Full Name
-                  </label>
-                  <input
-                    {...register('name')}
-                    type="text"
-                    placeholder="John Doe"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                  />
-                  {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-[#8b7f74] ml-1">Full Name</label>
+                  <div className="relative group">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8b7f74] group-focus-within:text-[#5c544d] transition-colors" />
+                    <input
+                      {...register('name')}
+                      type="text"
+                      placeholder="your name"
+                      className="w-full rounded-2xl border-none bg-[#f0ebe6] pl-12 pr-4 py-4 text-sm font-bold text-[#5c544d] placeholder:text-[#8b7f74]/40 outline-none focus:ring-2 ring-[#8b7f74]/20 transition-all shadow-inner"
+                    />
+                  </div>
+                  {errors.name && <p className="text-[10px] font-bold text-rose-500 ml-1">{errors.name.message}</p>}
                 </div>
               )}
 
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Email Address
-                </label>
-                <input
-                  {...register('email')}
-                  type="email"
-                  placeholder="name@example.com"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                />
-                {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-black uppercase tracking-widest text-[#8b7f74] ml-1">Email Address</label>
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8b7f74] group-focus-within:text-[#5c544d] transition-colors" />
+                  <input
+                    {...register('email')}
+                    type="email"
+                    placeholder="name@example.com"
+                    className="w-full rounded-2xl border-none bg-[#f0ebe6] pl-12 pr-4 py-4 text-sm font-bold text-[#5c544d] placeholder:text-[#8b7f74]/40 outline-none focus:ring-2 ring-[#8b7f74]/20 transition-all shadow-inner"
+                  />
+                </div>
+                {errors.email && <p className="text-[10px] font-bold text-rose-500 ml-1">{errors.email.message}</p>}
               </div>
 
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Password
-                </label>
-                <div className="relative">
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-black uppercase tracking-widest text-[#8b7f74] ml-1">Secure Password</label>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8b7f74] group-focus-within:text-[#5c544d] transition-colors" />
                   <input
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-12 text-slate-900 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full rounded-2xl border-none bg-[#f0ebe6] pl-12 pr-12 py-4 text-sm font-bold text-[#5c544d] placeholder:text-[#8b7f74]/40 outline-none focus:ring-2 ring-[#8b7f74]/20 transition-all shadow-inner"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition-colors"
-                    title={showPassword ? 'Hide Password' : 'Show Password'}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-[#8b7f74] hover:text-[#5c544d] transition-colors"
                   >
-                    {showPassword ? (
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
-                      </svg>
-                    ) : (
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
-                {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
-                {!isLogin && (
-                  <p className="mt-2 text-[10px] leading-relaxed text-slate-400">
-                    Must be 8+ characters with uppercase, lowercase, numbers, and special characters (!@#$%^&*).
-                  </p>
-                )}
+                {errors.password && <p className="text-[10px] font-bold text-rose-500 ml-1">{errors.password.message}</p>}
               </div>
 
               {error && (
-                <div className="rounded-xl bg-red-50 p-4 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+                <div className="flex items-center gap-2 rounded-2xl bg-rose-50 p-4 text-[10px] font-bold text-rose-600 border border-rose-100 animate-shake">
+                  <Shield size={14} className="flex-shrink-0" />
                   {error}
                 </div>
               )}
@@ -196,30 +180,36 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-blue-600 py-3 font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700 hover:shadow-blue-600/40 active:scale-[0.98] disabled:opacity-50"
+                className="group w-full h-14 rounded-3xl bg-[#5c544d] text-white shadow-[0_12px_24px_-8px_rgba(92,84,77,0.4)] transition-all hover:bg-[#4a433d] hover:shadow-[0_16px_32px_-8px_rgba(92,84,77,0.5)] active:scale-[0.98] disabled:opacity-50 overflow-hidden relative"
               >
-                {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Create Account'}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                <span className="relative flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest">
+                  {loading ? (
+                    <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      {isLogin ? 'Enter Portal' : 'Create Mastery ID'}
+                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </span>
               </button>
             </form>
           </div>
 
           {/* Footer */}
-          <div className="bg-slate-50 px-8 py-4 text-center dark:bg-slate-800/50">
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              {isLogin ? "Don't have an account? " : "Already have an account? "}
+          <div className="bg-[#f0ebe6]/50 px-10 py-6 text-center border-t border-white">
+            <p className="text-[10px] font-bold text-[#8b7f74]">
+              {isLogin ? "NEVER BEEN HERE BEFORE? " : "ALREADY PART OF THE CORE? "}
               <button 
                 onClick={() => setIsLogin(!isLogin)}
-                className="font-bold text-blue-600 hover:underline"
+                className="text-[#5c544d] font-black hover:underline"
               >
-                {isLogin ? 'Sign Up' : 'Login'}
+                {isLogin ? 'JOIN NOW' : 'SIGN IN'}
               </button>
             </p>
           </div>
         </div>
-        
-        <p className="mt-8 text-center text-xs text-slate-400">
-          By continuing, you agree to our Terms of Service and Privacy Policy.
-        </p>
       </div>
     </div>
   );

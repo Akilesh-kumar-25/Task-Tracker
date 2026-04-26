@@ -85,6 +85,14 @@ export function isWeekend(date: Date): boolean {
   return day === 0 || day === 6;
 }
 
+// Get number of days between two date strings (inclusive)
+export function getDateDiff(startStr: string, endStr: string): number {
+  const start = parseDate(startStr);
+  const end = parseDate(endStr);
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+}
+
 // Get week day name (Mon, Tue, etc.)
 export function getDayName(date: Date): string {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
