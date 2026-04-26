@@ -263,7 +263,14 @@ export default function MegaDashboard() {
             <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] text-[#8b7f74] opacity-60">Elite Human Performance Tracker</p>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsAddingHabit(true)} 
+              className="flex items-center gap-2 bg-[#5c544d] text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95 group/add"
+            >
+              <Plus size={14} className="group-hover/add:rotate-90 transition-transform duration-300" />
+              <span>New Habit</span>
+            </button>
             <div className="flex gap-2">
               <select value={currentYear} onChange={(e) => setCurrentYear(Number(e.target.value))} className="p-2 bg-white/60 dark:bg-slate-800 rounded-xl text-[10px] font-bold outline-none border-none shadow-sm">{[2026, 2027, 2028, 2029, 2030].map(y => <option key={y} value={y}>{y}</option>)}</select>
               <select value={currentMonth} onChange={(e) => setCurrentMonth(Number(e.target.value))} className="p-2 bg-white/60 dark:bg-slate-800 rounded-xl text-[10px] font-bold outline-none border-none shadow-sm">{Array.from({ length: 12 }, (_, i) => <option key={i} value={i}>{getMonthName(i)}</option>)}</select>
@@ -652,7 +659,7 @@ export default function MegaDashboard() {
                            completionDays < 330 ? 330 - completionDays : 0} days
                         </span>.
                       </p>
-                      <div className="h-2 w-full bg-gray-100 dark:bg-slate-900 rounded-full overflow-hidden">
+                      <div className="h-2 w-full bg-gray-100 dark:bg-slate-950 rounded-full overflow-hidden">
                         <div className="h-full bg-[#5c544d] transition-all" style={{ 
                           width: `${completionDays < 10 ? (completionDays/10)*100 : 
                                   completionDays < 25 ? ((completionDays-10)/15)*100 : 
