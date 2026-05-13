@@ -1,0 +1,21 @@
+{
+  "name": "Mastery Hub Task Tracker",
+  "short_name": "Mastery Hub",
+  "description": "Elite operator habit and exam tracking system.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fcfaf9",
+  "theme_color": "#5c544d",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3112/3112946.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3112/3112946.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -50,15 +50,15 @@ export default function DayCell({
       disabled={loading}
       className={`aspect-square rounded border transition-all smooth-transition ${
         isCompleted
-          ? 'border-emerald-500 bg-emerald-50 dark:border-emerald-600 dark:bg-emerald-900/30'
+          ? 'border-[#8b7f74] bg-[#f0ebe6] dark:border-[#8b7f74] dark:bg-[#8b7f74]/20'
           : 'border-gray-300 bg-white hover:border-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-gray-500'
       } ${loading ? 'opacity-50' : ''} flex items-center justify-center text-lg font-semibold`}
       title={isCompleted ? 'Mark incomplete' : 'Mark complete'}
     >
       {loading ? (
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#8b7f74] border-t-transparent" />
       ) : isCompleted ? (
-        <span className="text-emerald-600 dark:text-emerald-400">✓</span>
+        <span className="text-[#5c544d] dark:text-[#d4b483]">✓</span>
       ) : null}
     </button>
   );

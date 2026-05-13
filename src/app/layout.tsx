@@ -18,10 +18,11 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: 'HabitTracker',
-  description: 'Track your daily habits and build a better life.',
+  title: 'Mastery Hub | Tactical Habit Tracking',
+  description: 'Elite operator habit and academic tracking system.',
+  manifest: '/manifest.json',
   icons: {
-    icon: '/icon.svg',
+    icon: 'https://cdn-icons-png.flaticon.com/512/3112/3112946.png',
   },
 };
 

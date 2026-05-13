@@ -12,6 +12,7 @@ import {
   updateHabit as updateHabitAPI,
   deleteHabit as deleteHabitAPI,
   getTotalCompletionDays,
+  saveHabitEntry as saveHabitEntryAPI,
 } from './habits';
 import { getDocs, collection, query, orderBy, limit } from 'firebase/firestore';
 import { db } from './firebase';
@@ -85,7 +86,7 @@ export function useHabits() {
   }, [user]);
 
   const addHabit = useCallback(
-    async (name: string, emoji: string, type: 'permanent' | 'temporary' = 'permanent', startDate?: string, endDate?: string) => {
+    async (name: string, emoji: string, type: 'permanent' | 'temporary' | 'milestone' = 'permanent', startDate?: string, endDate?: string, category?: 'active' | 'passive', startTime?: string, endTime?: string) => {
       if (!user) return;
       try {
         const id = await createHabitAPI(user.uid, {
@@ -94,23 +95,26 @@ export function useHabits() {
           type,
           startDate,
           endDate,
+          category,
+          startTime,
+          endTime,
           color: '#10B981',
           archived: false,
-          position: habits.length,
+          position: habits.length, // this might need to be dynamically determined in API but for now it's fine
         });
         const newHabit: Habit = {
           id, userId: user.uid, name, emoji, color: '#10B981',
           archived: false, position: habits.length, createdAt: new Date(),
-          type, startDate, endDate
+          type, startDate, endDate, category, startTime, endTime
         };
-        setHabits([...habits, newHabit]);
+        setHabits(prev => [...prev, newHabit]);
         return id;
       } catch (err) {
         setError('Failed to add habit');
         console.error(err);
       }
     },
-    [user, habits]
+    [user, habits.length]
   );
 
   const updateHabit = useCallback(
@@ -118,13 +122,13 @@ export function useHabits() {
       if (!user) return;
       try {
         await updateHabitAPI(user.uid, habitId, updates);
-        setHabits(habits.map((h) => (h.id === habitId ? { ...h, ...updates } : h)));
+        setHabits(prev => prev.map((h) => (h.id === habitId ? { ...h, ...updates } : h)));
       } catch (err) {
         setError('Failed to update habit');
         console.error(err);
       }
     },
-    [user, habits]
+    [user]
   );
 
   const deleteHabit = useCallback(
@@ -132,13 +136,13 @@ export function useHabits() {
       if (!user) return;
       try {
         await deleteHabitAPI(user.uid, habitId);
-        setHabits(habits.filter((h) => h.id !== habitId));
+        setHabits(prev => prev.filter((h) => h.id !== habitId));
       } catch (err) {
         setError('Failed to delete habit');
         console.error(err);
       }
     },
-    [user, habits]
+    [user]
   );
 
   return { habits, loading, error, addHabit, updateHabit, deleteHabit };
@@ -200,6 +204,35 @@ export function useMonthEntries(year: number, month: number) {
     [user]
   );
 
+  const updateEntryData = useCallback(
+    async (dateStr: string, habitId: string, checklistCompletions: Record<string, boolean>, note: string) => {
+      if (!user) return;
+      try {
+        const currentEntry = entries[dateStr] || { checklistCompletions: {}, notes: {} };
+        const newChecklistCompletions = { ...currentEntry.checklistCompletions, [habitId]: checklistCompletions };
+        const newNotes = { ...currentEntry.notes, [habitId]: note };
+        
+        await saveHabitEntryAPI(user.uid, dateStr, {
+          checklistCompletions: newChecklistCompletions,
+          notes: newNotes
+        });
+
+        setEntries((prev) => ({
+          ...prev,
+          [dateStr]: {
+            ...prev[dateStr],
+            checklistCompletions: newChecklistCompletions,
+            notes: newNotes,
+          } as HabitEntry,
+        }));
+      } catch (err) {
+        setError('Failed to update entry data');
+        console.error(err);
+      }
+    },
+    [user, entries]
+  );
+
   const getStreaks = useCallback(async (habitId: string) => {
     if (!user) return { current: 0, best: 0 };
     try {
@@ -212,12 +245,12 @@ export function useMonthEntries(year: number, month: number) {
     }
   }, [user]);
 
-  return { entries, loading, error, toggleHabit, getStreaks };
+  return { entries, loading, error, toggleHabit, updateEntryData, getStreaks };
 }
 
 export function useAnnualStats() {
   const { user } = useAuth();
-  const [stats, setStats] = useState({ completionDays: 0, streak: 0 });
+  const [stats, setStats] = useState({ completionDays: 0, streak: 0, totalCompletions: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -234,7 +267,15 @@ export function useAnnualStats() {
         const snapshot = await getDocs(streakQuery);
         const recentEntries = snapshot.docs.map(doc => doc.data() as HabitEntry);
         const streak = calculateGlobalStreak(recentEntries);
-        setStats({ completionDays: count, streak });
+        
+        // Calculate total completions across all time for XP persistence
+        const allEntriesSnapshot = await getDocs(collection(db, 'users', user.uid, 'entries'));
+        const totalCompletions = allEntriesSnapshot.docs.reduce((sum, doc) => {
+          const entry = doc.data() as HabitEntry;
+          return sum + Object.values(entry.completions || {}).filter(Boolean).length;
+        }, 0);
+
+        setStats({ completionDays: count, streak, totalCompletions });
       } catch (err) {
         console.error('Stats Fetch Error:', err);
       } finally {

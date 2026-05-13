@@ -97,7 +97,7 @@ export default function HabitRow({
           <div className="w-12">
             <div className="h-2 rounded-full bg-gray-300 dark:bg-gray-700">
               <div
-                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                className="h-full rounded-full bg-[#8b7f74] transition-all duration-500"
                 style={{ width: `${completionPercent}%` }}
               />
             </div>
