@@ -42,6 +42,7 @@ next-env.d.ts
 
 # firebase
 .firebase
+.firebaserc
 
 # ai tools
 AGENTS.md
